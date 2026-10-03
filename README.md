@@ -49,13 +49,14 @@ B2-1.py-ledger-cli/
 
 ## 실행 흐름
 
-```text
-CLI (명령 파싱·입출력)
- └─ Service (업무 규칙·기능 조정)
-     ├─ Models (Transaction 구조·필드 검증)
-     └─ Repository (모델과 JSONL 변환)
-         ├─ 조회한 데이터로 Transaction 모델 생성
-         └─ JSONL 데이터 파일 읽기·쓰기
+```mermaid
+%%{init: {"flowchart": {"diagramPadding": 40, "nodeSpacing": 50, "rankSpacing": 50}}}%%
+flowchart TD
+    A["CLI<br/>명령 파싱·입출력"] --> B["Service<br/>업무 규칙·기능 조정"]
+    B -->|"생성·수정"| C["Models<br/>Transaction 구조·필드 검증"]
+    B -->|"저장·조회"| D["Repository<br/>모델과 JSONL 변환"]
+    D -->|"조회 데이터로 모델 생성"| C
+    D -->|"읽기·쓰기"| E[("JSONL 데이터 파일")]
 ```
 
 CLI가 명령을 서비스에 전달하면 서비스는 업무 규칙을 적용하고 모델을 생성하거나 저장소에 조회·저장을 요청합니다. 저장소는 `Transaction` 모델과 JSONL 레코드 사이의 변환을 담당합니다. 예상 가능한 오류는 `decorators.py`가 공통으로 처리합니다.
@@ -71,7 +72,7 @@ Python 3.10 이상과 표준 라이브러리만 사용합니다. 별도의 외�
 | 내부 저장 형식 | JSONL |
 | 기본 데이터 경로 | `./data` |
 | 데이터 경로 변경 옵션 | 전역 `--data-dir <path>` 지원 |
-| 빈 카테고리 초기화 정책 | `category add` 선등록 안내 후 거래 추가 차단 |
+| 카테고리가 없을 때 | 거래를 추가할 수 없으며, 먼저 `category add`로 카테고리를 등록해야 함 |
 | `update` 입력 방식 | 옵션 기반 |
 
 별도의 설치나 초기화 명령은 필요하지 않습니다. 첫 일반 실행에서 데이터 파일을 자동으로 준비하며, 거래 추가나 CSV 가져오기 전에는 사용할 카테고리를 등록해야 합니다.
