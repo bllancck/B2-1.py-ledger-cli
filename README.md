@@ -49,13 +49,13 @@ B2-1.py-ledger-cli/
 
 ## 실행 흐름
 
-```mermaid
-flowchart LR
-    A["CLI<br/>명령 파싱·입출력"] --> B["Service<br/>업무 규칙·기능 조정"]
-    B -->|"생성·수정"| C["Models<br/>Transaction 구조·필드 검증"]
-    B <-->|"저장·조회 요청"| D["Repository<br/>모델과 JSONL 변환"]
-    D -->|"조회 데이터로 모델 생성"| C
-    D <-->|"읽기·쓰기"| E[("JSONL 데이터 파일")]
+```text
+CLI (명령 파싱·입출력)
+ └─ Service (업무 규칙·기능 조정)
+     ├─ Models (Transaction 구조·필드 검증)
+     └─ Repository (모델과 JSONL 변환)
+         ├─ 조회한 데이터로 Transaction 모델 생성
+         └─ JSONL 데이터 파일 읽기·쓰기
 ```
 
 CLI가 명령을 서비스에 전달하면 서비스는 업무 규칙을 적용하고 모델을 생성하거나 저장소에 조회·저장을 요청합니다. 저장소는 `Transaction` 모델과 JSONL 레코드 사이의 변환을 담당합니다. 예상 가능한 오류는 `decorators.py`가 공통으로 처리합니다.
