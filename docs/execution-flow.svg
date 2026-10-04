@@ -1,92 +1,121 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="610" viewBox="0 0 760 610" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
   <title id="title">용돈 기입장 CLI 실행 흐름</title>
-  <desc id="desc">CLI에서 Service, Models, Repository, JSONL 파일로 이어지는 실행 흐름과 Validation 및 종료 코드를 보여주는 다이어그램</desc>
+  <desc id="desc">CLI에서 decorators.py, CLI Handler, Service, Models, Repository, Validation, JSONL 파일과 종료 코드로 이어지는 실행 흐름</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#7a8491"/>
+      <path d="M0,0 L8,4 L0,8 Z" fill="#788493"/>
     </marker>
     <style>
-      .box { fill:#f4f8fc; stroke:#9aa9b8; stroke-width:1.4; }
-      .data { fill:#f7fafc; stroke:#9aa9b8; stroke-width:1.4; }
+      .box { fill:#f5f8fb; stroke:#9aa8b6; stroke-width:1.35; }
+      .data { fill:#f8fafc; stroke:#9aa8b6; stroke-width:1.35; }
       .exit { fill:#fafafa; stroke:#a7a7a7; stroke-width:1.3; }
-      .title { font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#233446; text-anchor:middle; }
-      .sub { font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#526273; text-anchor:middle; }
-      .edge { fill:none; stroke:#7a8491; stroke-width:1.5; marker-end:url(#arrow); stroke-linejoin:round; }
-      .dash { fill:none; stroke:#7a8491; stroke-width:1.4; stroke-dasharray:5 4; marker-end:url(#arrow); stroke-linejoin:round; }
+      .title { font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#243546; text-anchor:middle; }
+      .sub { font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#536272; text-anchor:middle; }
+      .edge { fill:none; stroke:#788493; stroke-width:1.5; marker-end:url(#arrow); stroke-linejoin:round; }
+      .dash { fill:none; stroke:#788493; stroke-width:1.4; stroke-dasharray:5 4; marker-end:url(#arrow); stroke-linejoin:round; }
       .label-bg { fill:#fff; }
-      .label { font:600 11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#536171; text-anchor:middle; }
+      .label { font:600 11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#526171; text-anchor:middle; }
+      .num { font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#243546; text-anchor:middle; }
     </style>
   </defs>
 
-  <!-- Nodes -->
-  <rect class="box" x="275" y="20" width="210" height="62" rx="12"/>
-  <text class="title" x="380" y="45">CLI</text>
-  <text class="sub" x="380" y="65">명령 파싱 · 입출력</text>
+  <!-- Main nodes -->
+  <rect class="box" x="255" y="18" width="210" height="58" rx="12"/>
+  <text class="title" x="360" y="42">CLI / argparse</text>
+  <text class="sub" x="360" y="61">명령 파싱 · 핸들러 선택</text>
 
-  <rect class="box" x="275" y="125" width="210" height="62" rx="12"/>
-  <text class="title" x="380" y="150">Service</text>
-  <text class="sub" x="380" y="170">업무 규칙 · 기능 조정</text>
+  <rect class="box" x="255" y="108" width="210" height="62" rx="12"/>
+  <text class="title" x="360" y="133">decorators.py</text>
+  <text class="sub" x="360" y="153">@handle_cli_errors</text>
 
-  <rect class="box" x="70" y="245" width="220" height="62" rx="12"/>
-  <text class="title" x="180" y="270">Models</text>
-  <text class="sub" x="180" y="290">Transaction 데이터 구조</text>
+  <rect class="box" x="255" y="202" width="210" height="62" rx="12"/>
+  <text class="title" x="360" y="227">CLI Handler</text>
+  <text class="sub" x="360" y="247">입출력 · Service 호출</text>
 
-  <rect class="box" x="470" y="245" width="220" height="62" rx="12"/>
-  <text class="title" x="580" y="270">Repository</text>
-  <text class="sub" x="580" y="290">JSONL 저장 · 조회</text>
+  <rect class="box" x="255" y="296" width="210" height="62" rx="12"/>
+  <text class="title" x="360" y="321">Service</text>
+  <text class="sub" x="360" y="341">업무 규칙 · 기능 조정</text>
 
-  <rect class="data" x="470" y="355" width="220" height="58" rx="22"/>
-  <text class="title" x="580" y="379">JSONL 데이터 파일</text>
+  <rect class="box" x="55" y="410" width="215" height="62" rx="12"/>
+  <text class="title" x="162.5" y="435">Models</text>
+  <text class="sub" x="162.5" y="455">Transaction 데이터 구조</text>
 
-  <rect class="box" x="70" y="355" width="220" height="62" rx="12"/>
-  <text class="title" x="180" y="380">Validation</text>
-  <text class="sub" x="180" y="400">공통 입력 · 데이터 검증</text>
+  <rect class="box" x="450" y="410" width="215" height="62" rx="12"/>
+  <text class="title" x="557.5" y="435">Repository</text>
+  <text class="sub" x="557.5" y="455">JSONL 저장 · 조회</text>
 
-  <rect class="exit" x="40" y="515" width="190" height="58" rx="12"/>
-  <text class="title" x="135" y="539">정상 종료</text>
-  <text class="sub" x="135" y="558">exit 0</text>
+  <rect class="box" x="55" y="520" width="215" height="62" rx="12"/>
+  <text class="title" x="162.5" y="545">Validation</text>
+  <text class="sub" x="162.5" y="565">공통 입력 · 데이터 검증</text>
 
-  <rect class="exit" x="285" y="515" width="190" height="58" rx="12"/>
-  <text class="title" x="380" y="539">처리 오류</text>
-  <text class="sub" x="380" y="558">exit 1</text>
+  <rect class="data" x="450" y="520" width="215" height="58" rx="22"/>
+  <text class="title" x="557.5" y="554">JSONL 데이터 파일</text>
 
-  <rect class="exit" x="530" y="515" width="190" height="58" rx="12"/>
-  <text class="title" x="625" y="539">인자 오류</text>
-  <text class="sub" x="625" y="558">exit 2</text>
+  <!-- Exit nodes -->
+  <rect class="exit" x="35" y="642" width="185" height="56" rx="12"/>
+  <text class="title" x="127.5" y="666">정상 종료</text>
+  <text class="sub" x="127.5" y="685">exit 0</text>
 
-  <!-- Main flow -->
-  <path class="edge" d="M380 82 L380 125"/>
-  <rect class="label-bg" x="343" y="96" width="74" height="18" rx="7"/>
-  <text class="label" x="380" y="109">명령 실행</text>
+  <rect class="exit" x="267.5" y="642" width="185" height="56" rx="12"/>
+  <text class="title" x="360" y="666">처리 오류</text>
+  <text class="sub" x="360" y="685">exit 1</text>
 
-  <path class="edge" d="M345 187 L345 214 L180 214 L180 245"/>
-  <rect class="label-bg" x="224" y="201" width="74" height="18" rx="7"/>
-  <text class="label" x="261" y="214">거래 생성</text>
+  <rect class="exit" x="500" y="642" width="185" height="56" rx="12"/>
+  <text class="title" x="592.5" y="666">인자 오류</text>
+  <text class="sub" x="592.5" y="685">exit 2</text>
 
-  <path class="edge" d="M415 187 L415 214 L580 214 L580 245"/>
-  <rect class="label-bg" x="461" y="201" width="86" height="18" rx="7"/>
-  <text class="label" x="504" y="214">저장 · 조회</text>
+  <!-- Numbered normal execution flow -->
+  <path class="edge" d="M360 76 L360 108"/>
+  <rect class="label-bg" x="294" y="82" width="132" height="18" rx="7"/>
+  <text class="num" x="307" y="95">①</text>
+  <text class="label" x="367" y="95">핸들러 호출</text>
 
-  <path class="edge" d="M580 307 L580 355"/>
-  <rect class="label-bg" x="537" y="320" width="86" height="18" rx="7"/>
-  <text class="label" x="580" y="333">읽기 · 쓰기</text>
+  <path class="edge" d="M360 170 L360 202"/>
+  <rect class="label-bg" x="297" y="176" width="126" height="18" rx="7"/>
+  <text class="num" x="310" y="189">②</text>
+  <text class="label" x="370" y="189">핸들러 실행</text>
 
-  <!-- Validation: same four dashed relationships as the requested diagram -->
-  <path class="dash" d="M275 51 L30 51 L30 386 L70 386"/>
-  <path class="dash" d="M275 156 L50 156 L50 376 L70 376"/>
-  <path class="dash" d="M180 307 L180 355"/>
-  <path class="dash" d="M470 276 L320 276 L320 406 L290 406"/>
+  <path class="edge" d="M360 264 L360 296"/>
+  <rect class="label-bg" x="302" y="270" width="116" height="18" rx="7"/>
+  <text class="num" x="315" y="283">③</text>
+  <text class="label" x="371" y="283">Service 호출</text>
 
-  <!-- Exit codes -->
-  <path class="edge" d="M345 187 L345 455 L135 455 L135 515"/>
-  <rect class="label-bg" x="172" y="443" width="74" height="18" rx="7"/>
-  <text class="label" x="209" y="456">정상 완료</text>
+  <path class="edge" d="M325 358 L325 382 L162.5 382 L162.5 410"/>
+  <rect class="label-bg" x="199" y="370" width="118" height="18" rx="7"/>
+  <text class="num" x="212" y="383">④</text>
+  <text class="label" x="264" y="383">거래 생성</text>
 
-  <path class="dash" d="M380 187 L380 515"/>
-  <rect class="label-bg" x="321" y="461" width="118" height="18" rx="7"/>
-  <text class="label" x="380" y="474">예상 가능한 오류</text>
+  <path class="edge" d="M162.5 472 L162.5 520"/>
+  <rect class="label-bg" x="105" y="485" width="115" height="18" rx="7"/>
+  <text class="num" x="118" y="498">⑤</text>
+  <text class="label" x="171" y="498">필드 검증</text>
 
-  <path class="dash" d="M485 51 L730 51 L730 470 L625 470 L625 515"/>
-  <rect class="label-bg" x="645" y="456" width="86" height="18" rx="7"/>
-  <text class="label" x="688" y="469">argparse 오류</text>
+  <path class="edge" d="M395 358 L395 382 L557.5 382 L557.5 410"/>
+  <rect class="label-bg" x="422" y="370" width="126" height="18" rx="7"/>
+  <text class="num" x="435" y="383">⑥</text>
+  <text class="label" x="493" y="383">저장 · 조회</text>
+
+  <path class="edge" d="M557.5 472 L557.5 520"/>
+  <rect class="label-bg" x="498" y="485" width="119" height="18" rx="7"/>
+  <text class="num" x="511" y="498">⑦</text>
+  <text class="label" x="566" y="498">읽기 · 쓰기</text>
+
+  <!-- Successful return: control returns to the handler, then exit 0 -->
+  <path class="edge" d="M255 233 L20 233 L20 615 L127.5 615 L127.5 642"/>
+  <rect class="label-bg" x="37" y="601" width="150" height="18" rx="7"/>
+  <text class="num" x="50" y="614">⑧</text>
+  <text class="label" x="115" y="614">성공 시 return 0</text>
+
+  <!-- Error flows -->
+  <path class="dash" d="M255 233 L232 233 L232 139 L255 139"/>
+  <rect class="label-bg" x="148" y="174" width="103" height="18" rx="7"/>
+  <text class="label" x="199.5" y="187">예외가 위로 전파</text>
+
+  <path class="dash" d="M360 170 L360 642"/>
+  <rect class="label-bg" x="311" y="600" width="98" height="18" rx="7"/>
+  <text class="label" x="360" y="613">예외 처리 · return 1</text>
+
+  <path class="dash" d="M465 47 L700 47 L700 615 L592.5 615 L592.5 642"/>
+  <rect class="label-bg" x="591" y="601" width="108" height="18" rx="7"/>
+  <text class="label" x="645" y="614">argparse 오류</text>
 </svg>
