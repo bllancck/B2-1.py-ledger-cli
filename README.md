@@ -52,14 +52,38 @@ B2-1.py-ledger-cli/
 ```mermaid
 %%{init: {"flowchart": {"diagramPadding": 40, "nodeSpacing": 50, "rankSpacing": 50}}}%%
 flowchart TD
-    A["CLI<br/>명령 파싱·입출력"] --> B["Service<br/>업무 규칙·기능 조정"]
-    B -->|"생성·수정"| C["Models<br/>Transaction 구조·필드 검증"]
-    B -->|"저장·조회"| D["Repository<br/>모델과 JSONL 변환"]
-    D -->|"조회 데이터로 모델 생성"| C
-    D -->|"읽기·쓰기"| E[("JSONL 데이터 파일")]
+    A["CLI<br/>명령 파싱 · 입출력"]
+    B["Service<br/>업무 규칙 · 기능 조정"]
+    C["Models<br/>Transaction 데이터 구조"]
+    D["Repository<br/>JSONL 저장 · 조회"]
+    E[("JSONL 데이터 파일")]
+    V["Validation<br/>공통 입력 · 데이터 검증"]
+
+    X0["정상 종료<br/>exit 0"]
+    X1["처리 오류<br/>exit 1"]
+    X2["인자 오류<br/>exit 2"]
+
+    A -->|"명령 실행"| B
+    B -->|"거래 생성"| C
+    B -->|"저장 · 조회"| D
+    D -->|"읽기 · 쓰기"| E
+
+    A -.-> V
+    B -.-> V
+    C -.-> V
+    D -.-> V
+
+    B -->|"정상 완료"| X0
+    B -.->|"예상 가능한 오류"| X1
+    A -.->|"argparse 오류"| X2
 ```
 
-CLI가 명령을 서비스에 전달하면 서비스는 업무 규칙을 적용하고 모델을 생성하거나 저장소에 조회·저장을 요청합니다. 저장소는 `Transaction` 모델과 JSONL 레코드 사이의 변환을 담당합니다. 예상 가능한 오류는 `decorators.py`가 공통으로 처리합니다.
+- 실선(`→`): 주요 실행 및 데이터 처리 흐름
+- 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
+
+CLI는 명령을 해석하고 Service에 처리를 위임합니다. Service는 업무 규칙을 적용하고 거래가 필요한 경우 `Transaction` 모델을 생성하며, Repository를 통해 JSONL 데이터를 조회하거나 저장합니다. Repository는 저장된 거래 레코드를 읽을 때 내부적으로 `Transaction` 객체로 변환합니다. 공통 검증 규칙은 `validation.py`에서 제공되며 여러 계층에서 사용합니다.
+
+정상적으로 명령을 완료하면 종료 코드 `0`, 명령 처리 중 예상 가능한 입력값·데이터·파일 오류는 `1`, `argparse`의 명령 인자 해석 오류는 `2`를 반환합니다.
 
 ## 필요한 환경 및 설정
 
