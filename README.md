@@ -49,33 +49,12 @@ B2-1.py-ledger-cli/
 
 ## 실행 흐름
 
-```mermaid
-%%{init: {"flowchart": {"curve": "linear", "useMaxWidth": true, "diagramPadding": 12, "nodeSpacing": 24, "rankSpacing": 28}, "themeVariables": {"fontSize": "13px"}}}%%
-flowchart TB
-    A["CLI<br/>명령 파싱 · 입출력"]
-    B["Service<br/>업무 규칙 · 기능 조정"]
-    C["Models<br/>Transaction 데이터 구조"]
-    D["Repository<br/>JSONL 저장 · 조회"]
-    E[("JSONL 데이터 파일")]
-    V["Validation<br/>CLI · Service · Models · Repository 공통 검증"]
-    X["종료 코드<br/>0 정상 · 1 처리 오류 · 2 인자 오류"]
+![CLI 실행 흐름 다이어그램](docs/execution-flow.svg)
 
-    A -->|"명령 실행"| B
-    B -->|"거래 생성"| C
-    B -->|"저장 · 조회"| D
-    D -->|"읽기 · 쓰기"| E
+- 실선(`→`): 주요 실행 및 데이터 처리 흐름
+- 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
 
-    B -.->|"공통 검증"| V
-    B -->|"실행 결과"| X
-    A -.->|"argparse 오류"| X
-```
-
-- 실선(`→`): 주요 실행·데이터 처리 및 정상 결과 흐름
-- 점선(`-.->`): 공통 검증 또는 오류 흐름
-
-CLI는 명령을 해석하고 Service에 처리를 위임합니다. Service는 업무 규칙을 적용하고 거래가 필요한 경우 `Transaction` 모델을 생성하며, Repository를 통해 JSONL 데이터를 조회하거나 저장합니다. Repository는 저장된 거래 레코드를 읽을 때 내부적으로 `Transaction` 객체로 변환합니다.
-
-공통 검증 규칙은 `validation.py`에서 제공되며 CLI, Service, Models, Repository에서 사용합니다. 다이어그램에서는 선이 복잡해지는 것을 막기 위해 Validation 연결을 하나로 축약했습니다.
+CLI는 명령을 해석하고 Service에 처리를 위임합니다. Service는 업무 규칙을 적용하고 거래가 필요한 경우 `Transaction` 모델을 생성하며, Repository를 통해 JSONL 데이터를 조회하거나 저장합니다. Repository는 저장된 거래 레코드를 읽을 때 내부적으로 `Transaction` 객체로 변환합니다. 공통 검증 규칙은 `validation.py`에서 제공되며 CLI, Service, Models, Repository에서 사용합니다.
 
 정상적으로 명령을 완료하면 종료 코드 `0`, 명령 처리 중 예상 가능한 입력값·데이터·파일 오류는 `1`, `argparse`의 명령 인자 해석 오류는 `2`를 반환합니다.
 
