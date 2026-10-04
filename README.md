@@ -54,9 +54,9 @@ B2-1.py-ledger-cli/
 - 실선(`→`): 주요 실행 및 데이터 처리 흐름
 - 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
 
-CLI는 명령을 해석하고 Service에 처리를 위임합니다. Service는 업무 규칙을 적용하고 거래가 필요한 경우 `Transaction` 모델을 생성하며, Repository를 통해 JSONL 데이터를 조회하거나 저장합니다. Repository는 저장된 거래 레코드를 읽을 때 내부적으로 `Transaction` 객체로 변환합니다. 공통 검증 규칙은 `validation.py`에서 제공되며 CLI, Service, Models, Repository에서 사용합니다.
+CLI는 `argparse`로 명령을 해석하고 기능별 CLI Handler를 선택합니다. 각 Handler는 `@handle_cli_errors` 데코레이터로 감싸져 있으며, Handler가 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
 
-정상적으로 명령을 완료하면 종료 코드 `0`, 명령 처리 중 예상 가능한 입력값·데이터·파일 오류는 `1`, `argparse`의 명령 인자 해석 오류는 `2`를 반환합니다.
+정상 처리 시 Handler가 `0`을 반환합니다. 명령 실행 중 `ValueError`, `OSError`, `EOFError`가 발생하면 `decorators.py`의 `handle_cli_errors`가 예외를 처리하고 `1`을 반환합니다. 명령 인자 해석 단계에서 발생하는 오류는 `argparse`가 처리하며 종료 코드 `2`를 사용합니다.
 
 ## 필요한 환경 및 설정
 
