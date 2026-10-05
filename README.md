@@ -32,7 +32,9 @@
 ```text
 B2-1.py-ledger-cli/
 ├── README.md
-├── ARCHITECTURE.md       # 계층별 책임과 모듈 의존 관계
+├── docs/
+│   ├── ARCHITECTURE.md     # 계층별 책임과 모듈 의존 관계
+│   └── execution-flow.svg # CLI 실행 흐름 다이어그램
 ├── budget_app/
 │   ├── __main__.py        # 실행 진입점
 │   ├── cli.py             # 명령 파싱과 핸들러 연결
@@ -48,7 +50,7 @@ B2-1.py-ledger-cli/
 
 데이터는 거래·카테고리·예산용 파일로 나누고, 각 기능은 입력·출력과 계산·저장 책임이 섞이지 않도록 별도 모듈에서 처리합니다.
 
-계층별 책임과 모듈 사이의 의존 관계는 [애플리케이션 구조 문서](ARCHITECTURE.md)에서 자세히 확인할 수 있습니다.
+계층별 책임과 모듈 사이의 의존 관계는 [애플리케이션 구조 문서](docs/ARCHITECTURE.md)에서 자세히 확인할 수 있습니다.
 
 ## 실행 흐름
 
