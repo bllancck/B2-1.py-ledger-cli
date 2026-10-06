@@ -40,7 +40,8 @@ B2-1.py-ledger-cli/
 │   ├── parser.py          # 명령과 옵션 정의, 인자 파서 생성
 │   ├── cli.py             # CLI 초기화와 명령 분기
 │   ├── commands.py        # 명령 실행과 사용자 입력·출력
-│   ├── services.py        # 모든 기능의 업무 규칙
+│   ├── services.py        # 거래·카테고리·예산·요약 업무 규칙
+│   ├── csv_services.py    # CSV 가져오기·내보내기 업무 규칙
 │   ├── repository.py      # JSONL 데이터 저장·조회
 │   ├── models.py          # 거래 데이터 모델
 │   ├── validation.py      # 공통 입력 검증

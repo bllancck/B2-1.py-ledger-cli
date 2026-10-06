@@ -25,8 +25,9 @@
                                       |
                                       v
                             +-------------------------+
-                            |       services.py       |
-                            | 모든 기능의 업무 규칙   |
+                            | services.py             |
+                            | csv_services.py         |
+                            | 기능별 업무 규칙        |
                             +-------------------------+
                                       |
                                       v
@@ -76,7 +77,7 @@ cli.py의 COMMAND_HANDLERS 매핑
      ↓
 commands.py의 run_*_command()
      ↓
-services.py의 기능별 Service
+services.py / csv_services.py의 기능별 Service
 ```
 
 `COMMAND_HANDLERS` 매핑에서 명령어와 실행 함수의 연결을 한눈에 확인할 수 있습니다. `argparse.set_defaults(handler=...)`를 사용하지 않아 `parser.py`는 실행 함수를 알 필요가 없습니다.
@@ -85,9 +86,9 @@ services.py의 기능별 Service
 
 `commands.py`는 명령별 `run_*_command()` 함수와 대화형 입력, 출력 형식 등 CLI 실행 전용 보조 함수를 제공합니다. 각 실행 함수는 사용자 입력을 서비스에 전달하고 처리 결과를 화면에 출력합니다.
 
-## 4. `services.py` — 비즈니스 로직
+## 4. `services.py` — 핵심 비즈니스 로직
 
-`services.py`는 거래, 카테고리, 예산, 요약, CSV 가져오기·내보내기의 처리 규칙을 한곳에 모읍니다. 각 기능은 별도의 Service 클래스로 구분합니다. 거래 추가는 다음 순서로 처리됩니다.
+`services.py`는 거래, 카테고리, 예산과 요약 처리 규칙을 모읍니다. 각 기능은 별도의 Service 클래스로 구분합니다. 거래 추가는 다음 순서로 처리됩니다.
 
 ```text
 commands.py의 run_add_command()
@@ -105,7 +106,11 @@ repository.py
 transactions.jsonl
 ```
 
-## 5. `repository.py` — 데이터 저장 및 조회
+## 5. `csv_services.py` — CSV 가져오기와 내보내기
+
+`csv_services.py`는 CSV 스키마와 결과 타입, 가져오기·내보내기 서비스를 제공합니다. CSV 행을 거래로 저장하거나 기간에 맞는 거래를 CSV로 변환할 때 `TransactionService`를 사용합니다.
+
+## 6. `repository.py` — 데이터 저장 및 조회
 
 ```text
 JsonlFile
@@ -127,7 +132,7 @@ BudgetRepository
 
 `JsonlFile`은 JSONL 파일의 공통 입출력을 제공하고, 각 도메인 저장소는 자신이 담당하는 데이터의 변환과 검증을 처리합니다.
 
-## 6. `models.py` — 데이터 구조 정의
+## 7. `models.py` — 데이터 구조 정의
 
 ```text
 Transaction
@@ -142,7 +147,7 @@ Transaction
 
 `Transaction` 모델은 거래 한 건의 필드와 생성 시 적용할 검증 규칙을 정의합니다.
 
-## 7. Transaction 처리 흐름
+## 8. Transaction 처리 흐름
 
 ```text
 Transaction
@@ -168,7 +173,7 @@ Transaction
 
 거래 명령과 옵션은 `parser.py`, 명령 분기는 `cli.py`, 입력과 출력은 `commands.py`에서 확인할 수 있고, 공통 비즈니스 로직은 `services.py`의 `TransactionService`가 담당합니다.
 
-## 8. `validation.py` — 입력값 검증
+## 9. `validation.py` — 입력값 검증
 
 ```text
 거래 ID       → UUID 형식인지 확인
@@ -185,7 +190,7 @@ Transaction
 
 공통 검증 함수를 모델과 서비스에서 함께 사용해 CLI 입력, CSV 가져오기, 저장 데이터 복원에 같은 규칙을 적용합니다.
 
-## 9. `decorators.py` — 공통 CLI 예외 처리
+## 10. `decorators.py` — 공통 CLI 예외 처리
 
 ```text
 @handle_cli_errors

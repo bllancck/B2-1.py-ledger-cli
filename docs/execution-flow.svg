@@ -43,8 +43,8 @@
   <text class="sub" x="480" y="491">사용자 입출력 · Service 호출</text>
 
   <rect class="box" x="300" y="550" width="360" height="70" rx="9"/>
-  <text class="title" x="480" y="577">5. services.py</text>
-  <text class="sub" x="480" y="601">거래 · 카테고리 · 예산 · 요약 · CSV</text>
+  <text class="title" x="480" y="577">5. services.py · csv_services.py</text>
+  <text class="sub" x="480" y="601">핵심 업무 규칙 · CSV 가져오기/내보내기</text>
 
   <rect class="box" x="60" y="680" width="300" height="70" rx="9"/>
   <text class="title" x="210" y="707">models.py · Transaction</text>

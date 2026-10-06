@@ -4,6 +4,7 @@ from argparse import Namespace
 from collections.abc import Callable
 from typing import cast
 
+from budget_app.csv_services import ExportService, ImportService
 from budget_app.decorators import handle_cli_errors
 from budget_app.models import Transaction, TransactionType
 from budget_app.repository import (
@@ -14,8 +15,6 @@ from budget_app.repository import (
 from budget_app.services import (
     BudgetService,
     CategoryService,
-    ExportService,
-    ImportService,
     MonthlySummary,
     SummaryService,
     TransactionService,

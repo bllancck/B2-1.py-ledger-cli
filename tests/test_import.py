@@ -7,8 +7,9 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from budget_app.cli import main
+from budget_app.csv_services import ImportService
 from budget_app.repository import CategoryRepository, TransactionRepository
-from budget_app.services import ImportService, TransactionService
+from budget_app.services import TransactionService
 
 
 class ImportServiceTest(unittest.TestCase):
