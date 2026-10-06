@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1020" viewBox="0 0 1200 1020" role="img" aria-labelledby="title desc">
   <title id="title">용돈 기입장 CLI 실행 흐름</title>
-  <desc id="desc">시작점, parser 모듈의 인자 파싱, 데이터 파일 초기화, 오류 처리 데코레이터, 명령 함수와 서비스, 모델 및 저장소의 관계를 보여 줍니다. 오른쪽에 argparse 종료 코드 2, 명령 처리 오류 코드 1, 정상 종료 코드 0을 분리합니다. 검증 함수는 CLI, 서비스, 모델, 저장소에서 사용합니다.</desc>
+  <desc id="desc">시작점, parser 모듈의 인자 파싱, 데이터 파일 초기화, commands 모듈의 명령 실행, 오류 처리 데코레이터, 서비스, 모델 및 저장소의 관계를 보여 줍니다. 오른쪽에 argparse 종료 코드 2, 명령 처리 오류 코드 1, 정상 종료 코드 0을 분리합니다. 검증 함수는 명령, 서비스, 모델, 저장소에서 사용합니다.</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#64748b"/></marker>
     <marker id="error-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#9a6655"/></marker>
@@ -39,7 +39,7 @@
   <text class="sub" x="480" y="381">main() 분기 → 데코레이터 래퍼 호출</text>
 
   <rect class="box" x="300" y="440" width="360" height="70" rx="9"/>
-  <text class="title" x="480" y="467">4. run_*_command()</text>
+  <text class="title" x="480" y="467">4. commands.py · run_*_command()</text>
   <text class="sub" x="480" y="491">사용자 입출력 · Service 호출</text>
 
   <rect class="box" x="300" y="550" width="360" height="70" rx="9"/>
@@ -57,7 +57,7 @@
   <rect class="box" x="60" y="790" width="300" height="95" rx="9"/>
   <text class="title" x="210" y="818">validation.py</text>
   <text class="sub" x="210" y="841">공통 입력 · 데이터 검증</text>
-  <text class="sub" x="210" y="864">CLI · Service · Model · Repository 사용</text>
+  <text class="sub" x="210" y="864">Command · Service · Model · Repository 사용</text>
 
   <rect class="data" x="500" y="790" width="290" height="95" rx="9"/>
   <text class="title" x="645" y="818">data/ · JSONL 파일</text>
