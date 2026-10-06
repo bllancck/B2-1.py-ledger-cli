@@ -27,7 +27,7 @@
 
 ## 프로젝트 구조
 
-애플리케이션을 CLI, 서비스, 저장소, 모델과 공통 오류 처리 역할로 분리했습니다.
+애플리케이션을 CLI, 서비스, 저장소, 모델과 공통 오류 처리 역할로 분리했습니다. 명령어 정의와 입출력은 흐름을 한눈에 따라갈 수 있도록 `cli.py`에 모았습니다.
 
 ```text
 B2-1.py-ledger-cli/
@@ -37,9 +37,8 @@ B2-1.py-ledger-cli/
 │   └── execution-flow.svg # CLI 실행 흐름 다이어그램
 ├── budget_app/
 │   ├── __main__.py        # 실행 진입점
-│   ├── cli.py             # 명령 파싱과 핸들러 연결
-│   ├── *_cli.py           # 기능별 입력·출력
-│   ├── *_service.py       # 기능별 업무 규칙
+│   ├── cli.py             # 명령 파싱, 분기, 입력·출력
+│   ├── services.py        # 모든 기능의 업무 규칙
 │   ├── repository.py      # JSONL 데이터 저장·조회
 │   ├── models.py          # 거래 데이터 모델
 │   ├── validation.py      # 공통 입력 검증
@@ -48,7 +47,7 @@ B2-1.py-ledger-cli/
 └── tests/                 # 단위·통합 테스트
 ```
 
-데이터는 거래·카테고리·예산용 파일로 나누고, 각 기능은 입력·출력과 계산·저장 책임이 섞이지 않도록 별도 모듈에서 처리합니다.
+데이터는 거래·카테고리·예산용 파일로 나누고, CLI의 입력·출력과 서비스의 업무 규칙이 섞이지 않도록 계층을 분리합니다.
 
 계층별 책임과 모듈 사이의 의존 관계는 [애플리케이션 구조 문서](docs/ARCHITECTURE.md)에서 자세히 확인할 수 있습니다.
 
@@ -59,9 +58,9 @@ B2-1.py-ledger-cli/
 - 실선(`→`): 주요 실행 및 데이터 처리 흐름
 - 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
 
-CLI는 `argparse`로 명령을 해석하고 기능별 CLI Handler를 선택합니다. 각 Handler는 `@handle_cli_errors` 데코레이터로 감싸져 있으며, Handler가 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
+CLI는 `argparse`로 명령을 해석하고 `main()`에서 명령별 실행 함수를 직접 호출합니다. 각 실행 함수는 `@handle_cli_errors` 데코레이터로 감싸져 있으며 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
 
-정상 처리 시 Handler가 `0`을 반환합니다. 명령 실행 중 `ValueError`, `OSError`, `EOFError`가 발생하면 `decorators.py`의 `handle_cli_errors`가 예외를 처리하고 `1`을 반환합니다. 명령 인자 해석 단계에서 발생하는 오류는 `argparse`가 처리하며 종료 코드 `2`를 사용합니다.
+정상 처리 시 실행 함수가 `0`을 반환합니다. 명령 실행 중 `ValueError`, `OSError`, `EOFError`가 발생하면 `decorators.py`의 `handle_cli_errors`가 예외를 처리하고 `1`을 반환합니다. 명령 인자 해석 단계에서 발생하는 오류는 `argparse`가 처리하며 종료 코드 `2`를 사용합니다.
 
 ## 필요한 환경 및 설정
 

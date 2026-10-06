@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from budget_app.cli import main
 from budget_app.repository import CategoryRepository, TransactionRepository
-from budget_app.transaction_service import TransactionService
+from budget_app.services import TransactionService
 
 
 class TransactionServiceTest(unittest.TestCase):

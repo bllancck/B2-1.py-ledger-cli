@@ -11,7 +11,7 @@ from uuid import uuid4
 from budget_app.cli import main
 from budget_app.models import Transaction
 from budget_app.repository import CategoryRepository, TransactionRepository
-from budget_app.category_service import CategoryService
+from budget_app.services import CategoryService
 
 
 class CategoryServiceTest(unittest.TestCase):

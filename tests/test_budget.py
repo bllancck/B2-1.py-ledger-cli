@@ -7,11 +7,10 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from uuid import uuid4
 
-from budget_app.budget_service import BudgetService
 from budget_app.cli import main
 from budget_app.models import Transaction
 from budget_app.repository import BudgetRepository, TransactionRepository
-from budget_app.summary_service import SummaryService
+from budget_app.services import BudgetService, SummaryService
 
 
 def make_expense(amount: int) -> Transaction:

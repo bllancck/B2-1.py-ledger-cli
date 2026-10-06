@@ -1,4 +1,4 @@
-"""Validate user input and model field values."""
+"""사용자 입력과 데이터 모델의 필드값을 검사합니다."""
 
 import re
 from collections.abc import Iterable
@@ -12,7 +12,7 @@ MONTH_PATTERN = re.compile(r"\d{4}-\d{2}\Z")
 
 
 def validate_transaction_id(value: str) -> None:
-    """Ensure that a transaction ID is a UUID string."""
+    """거래 ID가 올바른 UUID 문자열인지 검사합니다."""
     if not isinstance(value, str):
         raise ValueError("거래 ID는 UUID 형식의 문자열이어야 합니다.")
 
@@ -23,13 +23,13 @@ def validate_transaction_id(value: str) -> None:
 
 
 def validate_transaction_type(value: str) -> None:
-    """Ensure that a transaction type is income or expense."""
+    """거래 유형이 income 또는 expense인지 검사합니다."""
     if not isinstance(value, str) or value not in ALLOWED_TRANSACTION_TYPES:
         raise ValueError("거래 유형은 income 또는 expense여야 합니다.")
 
 
 def validate_date(value: str) -> None:
-    """Ensure that a value is a real date in YYYY-MM-DD format."""
+    """날짜가 YYYY-MM-DD 형식이며 달력에 실제로 존재하는지 검사합니다."""
     if not isinstance(value, str) or DATE_PATTERN.fullmatch(value) is None:
         raise ValueError("날짜는 YYYY-MM-DD 형식이어야 합니다. 예: 2024-01-15")
 
@@ -40,7 +40,7 @@ def validate_date(value: str) -> None:
 
 
 def validate_month(value: str) -> None:
-    """Ensure that a value identifies a real month in YYYY-MM format."""
+    """월이 YYYY-MM 형식이며 01월부터 12월 사이인지 검사합니다."""
     if not isinstance(value, str) or MONTH_PATTERN.fullmatch(value) is None:
         raise ValueError("월은 YYYY-MM 형식이어야 합니다. 예: 2024-01")
 
@@ -50,25 +50,25 @@ def validate_month(value: str) -> None:
 
 
 def validate_amount(value: int) -> None:
-    """Ensure that an amount is a positive integer."""
+    """금액이 bool이 아닌 0보다 큰 정수인지 검사합니다."""
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError("금액은 0보다 큰 정수여야 합니다.")
 
 
 def validate_limit(value: int) -> None:
-    """Ensure that a result limit is a positive integer."""
+    """조회할 거래 개수가 0보다 큰 정수인지 검사합니다."""
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError("조회 건수는 0보다 큰 정수여야 합니다.")
 
 
 def validate_top(value: int) -> None:
-    """Ensure that an expense ranking size is a positive integer."""
+    """출력할 지출 카테고리 순위 개수가 0보다 큰 정수인지 검사합니다."""
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError("상위 카테고리 수는 0보다 큰 정수여야 합니다.")
 
 
 def validate_category_name(value: str) -> None:
-    """Ensure that a category name is a non-empty string."""
+    """카테고리 이름이 공백만 있는 값이 아닌 문자열인지 검사합니다."""
     if not isinstance(value, str) or not value.strip():
         raise ValueError("카테고리는 비어 있을 수 없습니다.")
 
@@ -77,22 +77,22 @@ def validate_registered_category(
     value: str,
     registered_categories: Iterable[str],
 ) -> None:
-    """Ensure that a category exists in the registered category collection."""
+    """카테고리 이름이 등록된 카테고리 목록에 있는지 검사합니다."""
     validate_category_name(value)
     if value not in registered_categories:
         raise ValueError(
-            "등록되지 않은 카테고리입니다. category add로 먼저 등록하세요."
+            "등록되지 않은 카테고리입니다. 카테고리를 먼저 등록하세요."
         )
 
 
 def validate_memo(value: str) -> None:
-    """Ensure that an optional memo is represented as a string."""
+    """선택 입력인 메모가 문자열인지 검사합니다."""
     if not isinstance(value, str):
         raise ValueError("메모는 문자열이어야 합니다.")
 
 
 def validate_tags(value: list[str]) -> None:
-    """Ensure that tags are represented as non-empty strings in a list."""
+    """태그가 비어 있지 않은 문자열들로 이루어진 목록인지 검사합니다."""
     if not isinstance(value, list):
         raise ValueError("태그는 문자열 목록이어야 합니다.")
     if any(not isinstance(tag, str) or not tag.strip() for tag in value):

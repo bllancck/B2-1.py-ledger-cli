@@ -1,4 +1,4 @@
-"""Provide decorators for shared CLI concerns."""
+"""여러 CLI 명령에서 함께 사용하는 데코레이터를 제공합니다."""
 
 from collections.abc import Callable
 from functools import wraps
@@ -9,10 +9,11 @@ P = ParamSpec("P")
 
 
 def handle_cli_errors(function: Callable[P, int]) -> Callable[P, int]:
-    """Print expected CLI errors with a hint and return a nonzero exit code."""
+    """예상 가능한 명령 오류와 해결 힌트를 출력하고 종료 코드 1을 반환합니다."""
 
     @wraps(function)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> int:
+        """원래 함수를 실행하고 예상 가능한 예외를 공통 형식으로 처리합니다."""
         try:
             return function(*args, **kwargs)
         except ValueError as error:

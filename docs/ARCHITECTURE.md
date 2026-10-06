@@ -14,29 +14,13 @@
                            v
                   +----------------+
                   |     cli.py     |
-                  | 명령어 진입점   |
+                  | 파싱·분기·입출력 |
                   +----------------+
-                           |
-          +----------------+----------------+
-          |                |                |
-          v                v                v
-   +-------------+  +-------------+  +-------------+
-   | transaction |  |  category   |  |   budget    |
-   |   *_cli.py  |  |   *_cli.py  |  |   *_cli.py |
-   +-------------+  +-------------+  +-------------+
-          |                |                |
-          +----------------+----------------+
                            |
                            v
               +-------------------------+
-              |      Service Layer      |
-              |                         |
-              | transaction_service.py  |
-              | category_service.py     |
-              | budget_service.py       |
-              | summary_service.py      |
-              | import_service.py       |
-              | export_service.py       |
+              |       services.py       |
+              | 모든 기능의 업무 규칙   |
               +-------------------------+
                            |
                            v
@@ -66,49 +50,36 @@
        +-----------------+
                 |
                 v
-            *_cli.py
+              cli.py
 ```
 
-## 1. `cli.py` — 전체 CLI 진입점
+## 1. `cli.py` — 명령 파싱과 사용자 입출력
 
-`cli.py`는 사용자 명령어를 해석하고 각 기능의 `*_cli.py`로 연결하는 라우터 역할을 합니다.
+`cli.py`는 명령어와 옵션을 정의하고, 파싱된 `command` 값을 기준으로 실행 함수를 직접 호출합니다. 각 실행 함수는 사용자 입력을 서비스에 전달하고 처리 결과를 화면에 출력합니다.
 
 ```text
 사용자 명령어
      ↓
-   cli.py
+cli.py의 build_parser()
      ↓
-각 기능의 *_cli.py
+cli.py의 main() 명시적 분기
+     ↓
+cli.py의 run_*_command()
+     ↓
+services.py의 기능별 Service
 ```
 
-## 2. `*_cli.py` — 사용자 입력과 출력
+`argparse.set_defaults(handler=...)`를 사용하지 않아 명령어가 어느 함수로 연결되는지 `main()`에서 바로 확인할 수 있습니다.
 
-CLI 모듈은 사용자 입력을 서비스에 전달하고 처리 결과를 화면에 출력합니다.
+## 2. `services.py` — 비즈니스 로직
 
-```text
-CLI
- │
- │ 사용자 입력을 받음
- v
-Service
- │
- │ 처리 결과 반환
- v
-CLI
- │
- v
-화면 출력
-```
-
-## 3. `*_service.py` — 비즈니스 로직
-
-서비스 계층은 카테고리 확인, 모델 생성, 검색과 집계 같은 실제 처리 규칙을 담당합니다. 거래 추가는 다음 순서로 처리됩니다.
+`services.py`는 거래, 카테고리, 예산, 요약, CSV 가져오기·내보내기의 처리 규칙을 한곳에 모읍니다. 각 기능은 별도의 Service 클래스로 구분합니다. 거래 추가는 다음 순서로 처리됩니다.
 
 ```text
-transaction_cli.py
+cli.py의 run_add_command()
         |
         v
-transaction_service.py
+services.py의 TransactionService
         |
         | 카테고리 존재 여부 확인
         | Transaction 생성
@@ -120,7 +91,7 @@ repository.py
 transactions.jsonl
 ```
 
-## 4. `repository.py` — 데이터 저장 및 조회
+## 3. `repository.py` — 데이터 저장 및 조회
 
 ```text
 JsonlFile
@@ -142,7 +113,7 @@ BudgetRepository
 
 `JsonlFile`은 JSONL 파일의 공통 입출력을 제공하고, 각 도메인 저장소는 자신이 담당하는 데이터의 변환과 검증을 처리합니다.
 
-## 5. `models.py` — 데이터 구조 정의
+## 4. `models.py` — 데이터 구조 정의
 
 ```text
 Transaction
@@ -157,23 +128,18 @@ Transaction
 
 `Transaction` 모델은 거래 한 건의 필드와 생성 시 적용할 검증 규칙을 정의합니다.
 
-## 6. Transaction 관련 모듈 — 거래 기능 세분화
+## 5. Transaction 처리 흐름
 
 ```text
 Transaction
      |
-     +-- transaction_cli.py
-     |      └─ 거래 추가 입력
+     +-- cli.py
+     |      ├─ 거래 명령과 옵션 정의
+     |      ├─ 거래 추가 입력
+     |      ├─ 거래 목록과 검색 출력
+     |      └─ 거래 수정과 삭제 출력
      |
-     +-- transaction_query_cli.py
-     |      ├─ 거래 목록
-     |      └─ 거래 검색
-     |
-     +-- transaction_mutation_cli.py
-     |      ├─ 거래 수정
-     |      └─ 거래 삭제
-     |
-     +-- transaction_service.py
+     +-- services.py의 TransactionService
             ├─ 거래 생성
             ├─ 최신 거래 조회
             ├─ 조건 검색
@@ -181,9 +147,9 @@ Transaction
             └─ 삭제
 ```
 
-거래 CLI는 추가, 조회, 변경 책임에 따라 세 모듈로 나뉘며 공통 비즈니스 로직은 `transaction_service.py`가 담당합니다.
+거래 명령의 입력과 출력은 `cli.py`에서 한 흐름으로 확인할 수 있고, 공통 비즈니스 로직은 `services.py`의 `TransactionService`가 담당합니다.
 
-## 7. `validation.py` — 입력값 검증
+## 6. `validation.py` — 입력값 검증
 
 ```text
 거래 ID       → UUID 형식인지 확인
@@ -200,7 +166,7 @@ Transaction
 
 공통 검증 함수를 모델과 서비스에서 함께 사용해 CLI 입력, CSV 가져오기, 저장 데이터 복원에 같은 규칙을 적용합니다.
 
-## 8. `decorators.py` — 공통 CLI 예외 처리
+## 7. `decorators.py` — 공통 CLI 예외 처리
 
 ```text
 @handle_cli_errors

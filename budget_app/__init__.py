@@ -1,1 +1,1 @@
-"""File-based personal ledger command-line application."""
+"""파일에 데이터를 저장하는 용돈 기입장 CLI 애플리케이션입니다."""
