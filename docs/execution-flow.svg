@@ -1,121 +1,108 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1020" viewBox="0 0 1200 1020" role="img" aria-labelledby="title desc">
   <title id="title">용돈 기입장 CLI 실행 흐름</title>
-  <desc id="desc">CLI에서 decorators.py, CLI 실행 함수, Service, Models, Repository, Validation, JSONL 파일과 종료 코드로 이어지는 실행 흐름</desc>
+  <desc id="desc">시작점, 인자 파싱, 데이터 파일 초기화, 오류 처리 데코레이터, 명령 함수와 서비스, 모델 및 저장소의 관계를 보여 줍니다. 오른쪽에 argparse 종료 코드 2, 명령 처리 오류 코드 1, 정상 종료 코드 0을 분리합니다. 검증 함수는 CLI, 서비스, 모델, 저장소에서 사용합니다.</desc>
   <defs>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#788493"/>
-    </marker>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#64748b"/></marker>
+    <marker id="error-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#9a6655"/></marker>
     <style>
-      .box { fill:#f5f8fb; stroke:#9aa8b6; stroke-width:1.35; }
-      .data { fill:#f8fafc; stroke:#9aa8b6; stroke-width:1.35; }
-      .exit { fill:#fafafa; stroke:#a7a7a7; stroke-width:1.3; }
-      .title { font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#243546; text-anchor:middle; }
-      .sub { font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#536272; text-anchor:middle; }
-      .edge { fill:none; stroke:#788493; stroke-width:1.5; marker-end:url(#arrow); stroke-linejoin:round; }
-      .dash { fill:none; stroke:#788493; stroke-width:1.4; stroke-dasharray:5 4; marker-end:url(#arrow); stroke-linejoin:round; }
-      .label-bg { fill:#fff; }
-      .label { font:600 11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#526171; text-anchor:middle; }
-      .num { font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; fill:#243546; text-anchor:middle; }
+      text { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Arial,sans-serif; fill:#26384a; }
+      .heading { font-size:24px; font-weight:700; }
+      .section { font-size:14px; font-weight:600; fill:#536579; }
+      .title { font-size:17px; font-weight:600; text-anchor:middle; }
+      .sub { font-size:14px; fill:#536579; text-anchor:middle; }
+      .small { font-size:13px; fill:#536579; }
+      .group { fill:#fcfdff; stroke:#d7e0e9; stroke-width:1; }
+      .box { fill:#f1f6fb; stroke:#98aec3; stroke-width:1.3; }
+      .data { fill:#f0f6f3; stroke:#9ab3a6; stroke-width:1.3; }
+      .exit { fill:#fff; stroke:#b4bec9; stroke-width:1.3; }
+      .edge { fill:none; stroke:#64748b; stroke-width:1.5; marker-end:url(#arrow); stroke-linejoin:round; }
+      .error { fill:none; stroke:#9a6655; stroke-width:1.5; stroke-dasharray:5 4; marker-end:url(#error-arrow); stroke-linejoin:round; }
     </style>
   </defs>
+  <rect width="1200" height="1020" fill="#fff"/>
+  <text class="heading" x="30" y="38">용돈 기입장 CLI · 실행 흐름</text>
+  <rect class="group" x="30" y="65" width="790" height="850" rx="12"/>
+  <text class="section" x="50" y="92">실행 및 데이터 처리</text>
+  <rect class="group" x="860" y="65" width="310" height="850" rx="12"/>
+  <text class="section" x="880" y="92">종료 경로</text>
 
-  <!-- Main nodes -->
-  <rect class="box" x="255" y="18" width="210" height="58" rx="12"/>
-  <text class="title" x="360" y="42">CLI / argparse</text>
-  <text class="sub" x="360" y="61">명령 파싱 · 핸들러 선택</text>
+  <rect class="box" x="300" y="110" width="360" height="70" rx="9"/>
+  <text class="title" x="480" y="137">1. __main__.py → cli.main()</text>
+  <text class="sub" x="480" y="161">argparse · 명령 및 옵션 파싱</text>
 
-  <rect class="box" x="255" y="108" width="210" height="62" rx="12"/>
-  <text class="title" x="360" y="133">decorators.py</text>
-  <text class="sub" x="360" y="153">@handle_cli_errors</text>
+  <rect class="box" x="300" y="220" width="360" height="70" rx="9"/>
+  <text class="title" x="480" y="247">2. initialize_data_files()</text>
+  <text class="sub" x="480" y="271">거래 · 카테고리 · 예산 파일 준비</text>
 
-  <rect class="box" x="255" y="202" width="210" height="62" rx="12"/>
-  <text class="title" x="360" y="227">CLI 실행 함수</text>
-  <text class="sub" x="360" y="247">입출력 · Service 호출</text>
+  <rect class="box" x="300" y="330" width="360" height="70" rx="9"/>
+  <text class="title" x="480" y="357">3. @handle_cli_errors</text>
+  <text class="sub" x="480" y="381">main() 분기 → 데코레이터 래퍼 호출</text>
 
-  <rect class="box" x="255" y="296" width="210" height="62" rx="12"/>
-  <text class="title" x="360" y="321">Service</text>
-  <text class="sub" x="360" y="341">업무 규칙 · 기능 조정</text>
+  <rect class="box" x="300" y="440" width="360" height="70" rx="9"/>
+  <text class="title" x="480" y="467">4. run_*_command()</text>
+  <text class="sub" x="480" y="491">사용자 입출력 · Service 호출</text>
 
-  <rect class="box" x="55" y="410" width="215" height="62" rx="12"/>
-  <text class="title" x="162.5" y="435">Models</text>
-  <text class="sub" x="162.5" y="455">Transaction 데이터 구조</text>
+  <rect class="box" x="300" y="550" width="360" height="70" rx="9"/>
+  <text class="title" x="480" y="577">5. services.py</text>
+  <text class="sub" x="480" y="601">거래 · 카테고리 · 예산 · 요약 · CSV</text>
 
-  <rect class="box" x="450" y="410" width="215" height="62" rx="12"/>
-  <text class="title" x="557.5" y="435">Repository</text>
-  <text class="sub" x="557.5" y="455">JSONL 저장 · 조회</text>
+  <rect class="box" x="60" y="680" width="300" height="70" rx="9"/>
+  <text class="title" x="210" y="707">models.py · Transaction</text>
+  <text class="sub" x="210" y="731">거래 생성 · __post_init__ 검증</text>
 
-  <rect class="box" x="55" y="520" width="215" height="62" rx="12"/>
-  <text class="title" x="162.5" y="545">Validation</text>
-  <text class="sub" x="162.5" y="565">공통 입력 · 데이터 검증</text>
+  <rect class="box" x="500" y="680" width="290" height="70" rx="9"/>
+  <text class="title" x="645" y="707">repository.py</text>
+  <text class="sub" x="645" y="731">도메인 저장소 · JsonlFile</text>
 
-  <rect class="data" x="450" y="520" width="215" height="58" rx="22"/>
-  <text class="title" x="557.5" y="554">JSONL 데이터 파일</text>
+  <rect class="box" x="60" y="790" width="300" height="95" rx="9"/>
+  <text class="title" x="210" y="818">validation.py</text>
+  <text class="sub" x="210" y="841">공통 입력 · 데이터 검증</text>
+  <text class="sub" x="210" y="864">CLI · Service · Model · Repository 사용</text>
 
-  <!-- Exit nodes -->
-  <rect class="exit" x="35" y="642" width="185" height="56" rx="12"/>
-  <text class="title" x="127.5" y="666">정상 종료</text>
-  <text class="sub" x="127.5" y="685">exit 0</text>
+  <rect class="data" x="500" y="790" width="290" height="95" rx="9"/>
+  <text class="title" x="645" y="818">data/ · JSONL 파일</text>
+  <text class="sub" x="645" y="841">transactions.jsonl · categories.jsonl</text>
+  <text class="sub" x="645" y="864">budgets.jsonl · --data-dir로 경로 지정</text>
 
-  <rect class="exit" x="267.5" y="642" width="185" height="56" rx="12"/>
-  <text class="title" x="360" y="666">처리 오류</text>
-  <text class="sub" x="360" y="685">exit 1</text>
+  <path class="edge" d="M480 180 V220"/>
+  <path class="edge" d="M480 290 V330"/>
+  <path class="edge" d="M480 400 V440"/>
+  <path class="edge" d="M480 510 V550"/>
+  <path class="edge" d="M390 620 V650 H210 V680"/>
+  <path class="edge" d="M570 620 V650 H645 V680"/>
+  <path class="edge" d="M210 750 V790"/>
+  <path class="edge" d="M645 750 V790"/>
+  <text class="small" x="80" y="644">거래 생성 · 변환에 사용</text>
+  <text class="small" x="675" y="775">읽기 · 쓰기</text>
 
-  <rect class="exit" x="500" y="642" width="185" height="56" rx="12"/>
-  <text class="title" x="592.5" y="666">인자 오류</text>
-  <text class="sub" x="592.5" y="685">exit 2</text>
+  <rect class="exit" x="880" y="110" width="270" height="90" rx="9"/>
+  <text class="title" x="1015" y="138">인자 오류 · exit 2</text>
+  <text class="sub" x="1015" y="162">argparse가 직접 종료</text>
+  <text class="sub" x="1015" y="184">--help는 exit 0</text>
+  <path class="error" d="M660 145 H880"/>
 
-  <!-- Numbered normal execution flow -->
-  <path class="edge" d="M360 76 L360 108"/>
-  <rect class="label-bg" x="294" y="82" width="132" height="18" rx="7"/>
-  <text class="num" x="307" y="95">①</text>
-  <text class="label" x="367" y="95">핸들러 호출</text>
+  <rect class="exit" x="880" y="330" width="270" height="120" rx="9"/>
+  <text class="title" x="1015" y="358">명령 처리 오류 · exit 1</text>
+  <text class="sub" x="1015" y="383">ValueError · OSError · EOFError</text>
+  <text class="sub" x="1015" y="408">오류와 힌트 출력 · return 1</text>
+  <text class="sub" x="1015" y="433">명령 함수의 직접 return 1 포함</text>
+  <path class="error" d="M660 365 H880"/>
+  <path class="error" d="M300 475 H275 V365 H300"/>
+  <text class="small" x="75" y="415">명령 실행 중 예외 전파</text>
+  <path class="error" d="M660 480 H840 V430 H880"/>
 
-  <path class="edge" d="M360 170 L360 202"/>
-  <rect class="label-bg" x="297" y="176" width="126" height="18" rx="7"/>
-  <text class="num" x="310" y="189">②</text>
-  <text class="label" x="370" y="189">핸들러 실행</text>
+  <rect class="exit" x="880" y="550" width="270" height="90" rx="9"/>
+  <text class="title" x="1015" y="579">정상 종료 · exit 0</text>
+  <text class="sub" x="1015" y="604">명령 성공 · return 0</text>
+  <text class="sub" x="1015" y="628">명령 미지정: 도움말 출력 후 return 0</text>
+  <path class="edge" d="M660 460 H800 V595 H880"/>
 
-  <path class="edge" d="M360 264 L360 296"/>
-  <rect class="label-bg" x="302" y="270" width="116" height="18" rx="7"/>
-  <text class="num" x="315" y="283">③</text>
-  <text class="label" x="371" y="283">Service 호출</text>
+  <text class="small" x="880" y="703">종료 코드 전달</text>
+  <text class="small" x="880" y="728">명령 함수 → 래퍼 → main()</text>
+  <text class="small" x="880" y="753">__main__.py의 SystemExit(main())</text>
+  <text class="small" x="880" y="806">초기화는 데코레이터 실행 전입니다.</text>
+  <text class="small" x="880" y="830">초기화 오류는 래퍼에서 잡지 않습니다.</text>
 
-  <path class="edge" d="M325 358 L325 382 L162.5 382 L162.5 410"/>
-  <rect class="label-bg" x="199" y="370" width="118" height="18" rx="7"/>
-  <text class="num" x="212" y="383">④</text>
-  <text class="label" x="264" y="383">거래 생성</text>
-
-  <path class="edge" d="M162.5 472 L162.5 520"/>
-  <rect class="label-bg" x="105" y="485" width="115" height="18" rx="7"/>
-  <text class="num" x="118" y="498">⑤</text>
-  <text class="label" x="171" y="498">필드 검증</text>
-
-  <path class="edge" d="M395 358 L395 382 L557.5 382 L557.5 410"/>
-  <rect class="label-bg" x="422" y="370" width="126" height="18" rx="7"/>
-  <text class="num" x="435" y="383">⑥</text>
-  <text class="label" x="493" y="383">저장 · 조회</text>
-
-  <path class="edge" d="M557.5 472 L557.5 520"/>
-  <rect class="label-bg" x="498" y="485" width="119" height="18" rx="7"/>
-  <text class="num" x="511" y="498">⑦</text>
-  <text class="label" x="566" y="498">읽기 · 쓰기</text>
-
-  <!-- Successful return: control returns to the command function, then exit 0 -->
-  <path class="edge" d="M255 233 L20 233 L20 615 L127.5 615 L127.5 642"/>
-  <rect class="label-bg" x="37" y="601" width="150" height="18" rx="7"/>
-  <text class="num" x="50" y="614">⑧</text>
-  <text class="label" x="115" y="614">성공 시 return 0</text>
-
-  <!-- Error flows -->
-  <path class="dash" d="M255 233 L232 233 L232 139 L255 139"/>
-  <rect class="label-bg" x="148" y="174" width="103" height="18" rx="7"/>
-  <text class="label" x="199.5" y="187">예외가 위로 전파</text>
-
-  <path class="dash" d="M360 170 L360 642"/>
-  <rect class="label-bg" x="311" y="600" width="98" height="18" rx="7"/>
-  <text class="label" x="360" y="613">예외 처리 · return 1</text>
-
-  <path class="dash" d="M465 47 L700 47 L700 615 L592.5 615 L592.5 642"/>
-  <rect class="label-bg" x="591" y="601" width="108" height="18" rx="7"/>
-  <text class="label" x="645" y="614">argparse 오류</text>
+  <text class="small" x="30" y="951">실선: 호출 · 데이터 접근    /    점선: 오류 경로</text>
+  <text class="small" x="30" y="978">명령별로 사용하는 Service와 저장소가 다르며, 하위 호출의 결과는 명령 함수로 반환됩니다.</text>
 </svg>
