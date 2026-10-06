@@ -7,7 +7,7 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from budget_app.cli import main
+from budget_app.cli import COMMAND_HANDLERS, main
 from budget_app.parser import build_parser
 
 
@@ -40,6 +40,9 @@ class CliHelpTest(unittest.TestCase):
         for command in REQUIRED_COMMANDS:
             with self.subTest(command=command):
                 self.assertIn(command, help_output)
+
+    def test_every_command_has_a_handler(self) -> None:
+        self.assertEqual(set(COMMAND_HANDLERS), REQUIRED_COMMANDS)
 
     def test_every_command_and_action_provides_help(self) -> None:
         help_paths = (

@@ -36,7 +36,7 @@
 
   <rect class="box" x="300" y="330" width="360" height="70" rx="9"/>
   <text class="title" x="480" y="357">3. @handle_cli_errors</text>
-  <text class="sub" x="480" y="381">main() 분기 → 데코레이터 래퍼 호출</text>
+  <text class="sub" x="480" y="381">COMMAND_HANDLERS → 데코레이터 래퍼 호출</text>
 
   <rect class="box" x="300" y="440" width="360" height="70" rx="9"/>
   <text class="title" x="480" y="467">4. commands.py · run_*_command()</text>

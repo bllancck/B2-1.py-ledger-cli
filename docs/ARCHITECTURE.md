@@ -72,14 +72,14 @@
      ↓
 parser.py의 build_parser()
      ↓
-cli.py의 main() 명시적 분기
+cli.py의 COMMAND_HANDLERS 매핑
      ↓
 commands.py의 run_*_command()
      ↓
 services.py의 기능별 Service
 ```
 
-`argparse.set_defaults(handler=...)`를 사용하지 않아 명령어가 어느 함수로 연결되는지 `main()`에서 바로 확인할 수 있습니다.
+`COMMAND_HANDLERS` 매핑에서 명령어와 실행 함수의 연결을 한눈에 확인할 수 있습니다. `argparse.set_defaults(handler=...)`를 사용하지 않아 `parser.py`는 실행 함수를 알 필요가 없습니다.
 
 ## 3. `commands.py` — 명령 실행과 사용자 입출력
 
@@ -151,7 +151,7 @@ Transaction
      |      └─ 거래 명령과 옵션 정의
      |
      +-- cli.py
-     |      └─ 명령 분기
+     |      └─ 핸들러 매핑으로 명령 분기
      |
      +-- commands.py
      |      ├─ 거래 추가 입력
