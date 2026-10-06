@@ -7,7 +7,8 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from budget_app.cli import build_parser, main
+from budget_app.cli import main
+from budget_app.parser import build_parser
 
 
 REQUIRED_COMMANDS = {

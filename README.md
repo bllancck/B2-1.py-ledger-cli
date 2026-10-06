@@ -27,7 +27,7 @@
 
 ## 프로젝트 구조
 
-애플리케이션을 CLI, 서비스, 저장소, 모델과 공통 오류 처리 역할로 분리했습니다. 명령어 정의와 입출력은 흐름을 한눈에 따라갈 수 있도록 `cli.py`에 모았습니다.
+애플리케이션을 인자 파서, CLI 실행, 서비스, 저장소, 모델과 공통 오류 처리 역할로 분리했습니다. 명령어와 옵션 정의는 `parser.py`, 명령 분기와 입출력은 `cli.py`가 담당합니다.
 
 ```text
 B2-1.py-ledger-cli/
@@ -37,7 +37,8 @@ B2-1.py-ledger-cli/
 │   └── execution-flow.svg # CLI 실행 흐름 다이어그램
 ├── budget_app/
 │   ├── __main__.py        # 실행 진입점
-│   ├── cli.py             # 명령 파싱, 분기, 입력·출력
+│   ├── parser.py          # 명령과 옵션 정의, 인자 파서 생성
+│   ├── cli.py             # 명령 분기, 입력·출력
 │   ├── services.py        # 모든 기능의 업무 규칙
 │   ├── repository.py      # JSONL 데이터 저장·조회
 │   ├── models.py          # 거래 데이터 모델
@@ -58,7 +59,7 @@ B2-1.py-ledger-cli/
 - 실선(`→`): 주요 실행 및 데이터 처리 흐름
 - 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
 
-CLI는 `argparse`로 명령을 해석하고 `main()`에서 명령별 실행 함수를 직접 호출합니다. 각 실행 함수는 `@handle_cli_errors` 데코레이터로 감싸져 있으며 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
+`parser.py`는 `argparse` 파서를 구성해 명령을 해석하고, `cli.py`의 `main()`은 명령별 실행 함수를 직접 호출합니다. 각 실행 함수는 `@handle_cli_errors` 데코레이터로 감싸져 있으며 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
 
 정상 처리 시 실행 함수가 `0`을 반환합니다. 명령 실행 중 `ValueError`, `OSError`, `EOFError`가 발생하면 `decorators.py`의 `handle_cli_errors`가 예외를 처리하고 `1`을 반환합니다. 명령 인자 해석 단계에서 발생하는 오류는 `argparse`가 처리하며 종료 코드 `2`를 사용합니다.
 

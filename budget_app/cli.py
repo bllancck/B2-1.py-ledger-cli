@@ -1,12 +1,12 @@
-"""명령줄 입력을 해석하고 처리 결과를 화면에 출력합니다."""
+"""파싱된 명령을 실행하고 처리 결과를 화면에 출력합니다."""
 
-import argparse
+from argparse import Namespace
 from collections.abc import Callable, Sequence
-from pathlib import Path
 from typing import cast
 
 from budget_app.decorators import handle_cli_errors
 from budget_app.models import Transaction, TransactionType
+from budget_app.parser import build_parser
 from budget_app.repository import (
     BudgetRepository,
     CategoryRepository,
@@ -29,157 +29,6 @@ from budget_app.validation import (
     validate_tags,
     validate_transaction_type,
 )
-
-
-def build_parser() -> argparse.ArgumentParser:
-    """지원하는 명령과 옵션을 등록한 최상위 인자 파서를 만듭니다."""
-    parser = argparse.ArgumentParser(
-        prog="budget_app",
-        description="파일 기반 용돈 기입장 CLI",
-    )
-    parser.add_argument(
-        "--data-dir",
-        type=Path,
-        default=Path("data"),
-        metavar="PATH",
-        help="데이터 저장 폴더 (기본값: ./data)",
-    )
-    commands = parser.add_subparsers(dest="command", title="commands")
-    add_parser = commands.add_parser(
-        "add",
-        help="거래 추가",
-        description="대화형 입력으로 수입 또는 지출 거래를 추가합니다.",
-        epilog="사용할 카테고리는 category add로 먼저 등록하세요.",
-    )
-    list_parser = commands.add_parser(
-        "list",
-        help="최신 거래 목록 조회",
-        description="최근에 추가된 거래부터 조회합니다.",
-    )
-    list_parser.add_argument(
-        "--limit",
-        type=int,
-        default=10,
-        metavar="N",
-        help="출력할 최대 거래 수 (기본값: 10)",
-    )
-    search_parser = commands.add_parser(
-        "search",
-        help="조건으로 거래 검색",
-        description="기간, 카테고리, 유형, 메모, 태그로 거래를 검색합니다.",
-    )
-    search_parser.add_argument("--from", dest="date_from", metavar="YYYY-MM-DD")
-    search_parser.add_argument("--to", dest="date_to", metavar="YYYY-MM-DD")
-    search_parser.add_argument("--category")
-    search_parser.add_argument(
-        "--type",
-        dest="transaction_type",
-        choices=("income", "expense"),
-    )
-    search_parser.add_argument("--q", dest="query", help="메모 검색어")
-    search_parser.add_argument("--tag")
-    summary_parser = commands.add_parser(
-        "summary",
-        help="월별 거래 요약",
-        description="월별 수입, 지출, 잔액과 지출 카테고리 순위를 조회합니다.",
-    )
-    summary_parser.add_argument("--month", required=True, metavar="YYYY-MM")
-    summary_parser.add_argument(
-        "--top",
-        type=int,
-        default=3,
-        metavar="N",
-        help="출력할 지출 카테고리 수 (기본값: 3)",
-    )
-    budget_parser = commands.add_parser(
-        "budget",
-        help="월별 예산 관리",
-        description="월별 지출 예산을 설정합니다.",
-    )
-    budget_actions = budget_parser.add_subparsers(
-        dest="budget_action",
-        title="actions",
-        required=True,
-    )
-    budget_set_parser = budget_actions.add_parser("set", help="월별 예산 설정")
-    budget_set_parser.add_argument("--month", required=True, metavar="YYYY-MM")
-    budget_set_parser.add_argument(
-        "--amount",
-        required=True,
-        type=int,
-        metavar="AMOUNT",
-    )
-    update_parser = commands.add_parser(
-        "update",
-        help="ID로 거래 수정",
-        description="지정한 거래의 선택한 필드를 수정합니다.",
-        epilog="새 카테고리는 category add로 먼저 등록하세요.",
-    )
-    update_parser.add_argument("--id", required=True, dest="transaction_id")
-    update_parser.add_argument("--date", metavar="YYYY-MM-DD")
-    update_parser.add_argument(
-        "--type",
-        dest="transaction_type",
-        choices=("income", "expense"),
-    )
-    update_parser.add_argument("--category")
-    update_parser.add_argument("--amount", type=int)
-    update_parser.add_argument("--memo")
-    update_parser.add_argument("--tags", metavar="TAG1,TAG2")
-    delete_parser = commands.add_parser(
-        "delete",
-        help="ID로 거래 삭제",
-        description="지정한 거래를 삭제합니다.",
-    )
-    delete_parser.add_argument("--id", required=True, dest="transaction_id")
-    category_parser = commands.add_parser(
-        "category",
-        help="카테고리 관리",
-        description="거래에 사용할 카테고리를 관리합니다.",
-    )
-    category_actions = category_parser.add_subparsers(
-        dest="category_action",
-        title="actions",
-        required=True,
-    )
-    category_actions.add_parser("add", help="카테고리 추가")
-    category_actions.add_parser("list", help="카테고리 목록 조회")
-    category_actions.add_parser("remove", help="카테고리 삭제")
-    import_parser = commands.add_parser(
-        "import",
-        help="CSV 거래 가져오기",
-        description="UTF-8 CSV 파일의 거래를 일괄 등록합니다.",
-        epilog="CSV에 사용할 카테고리는 category add로 먼저 등록하세요.",
-    )
-    import_parser.add_argument(
-        "--from",
-        required=True,
-        dest="source_path",
-        type=Path,
-        metavar="CSV",
-        help="가져올 UTF-8 CSV 파일",
-    )
-    export_parser = commands.add_parser(
-        "export",
-        help="CSV 거래 내보내기",
-        description="월 또는 날짜 범위에 해당하는 거래를 UTF-8 CSV로 저장합니다.",
-        epilog=(
-            "기간은 --month 또는 --from/--to 중 하나로 지정하세요. "
-            "두 방식을 함께 사용할 수 없으며, --from이나 --to만 지정해도 됩니다."
-        ),
-    )
-    export_parser.add_argument(
-        "--out",
-        required=True,
-        dest="output_path",
-        type=Path,
-        metavar="CSV",
-        help="생성할 UTF-8 CSV 파일",
-    )
-    export_parser.add_argument("--month", metavar="YYYY-MM")
-    export_parser.add_argument("--from", dest="date_from", metavar="YYYY-MM-DD")
-    export_parser.add_argument("--to", dest="date_to", metavar="YYYY-MM-DD")
-    return parser
 
 
 def _prompt_validated_text(
@@ -236,7 +85,7 @@ def _format_transaction(transaction: Transaction) -> str:
     )
 
 
-def _build_transaction_service(args: argparse.Namespace) -> TransactionService:
+def _build_transaction_service(args: Namespace) -> TransactionService:
     """명령에서 받은 데이터 폴더를 사용하는 거래 서비스를 만듭니다."""
     return TransactionService(
         TransactionRepository(args.data_dir),
@@ -271,7 +120,7 @@ def _print_summary(summary: MonthlySummary, top: int) -> None:
 
 
 @handle_cli_errors
-def run_add_command(args: argparse.Namespace) -> int:
+def run_add_command(args: Namespace) -> int:
     """거래 정보를 차례로 입력받아 새로운 거래 한 건을 저장합니다."""
     categories = CategoryRepository(args.data_dir)
     registered_categories = list(categories.iter_all())
@@ -313,7 +162,7 @@ def run_add_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_list_command(args: argparse.Namespace) -> int:
+def run_list_command(args: Namespace) -> int:
     """최근에 저장한 거래부터 요청한 개수만큼 출력합니다."""
     found = False
     service = _build_transaction_service(args)
@@ -327,7 +176,7 @@ def run_list_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_search_command(args: argparse.Namespace) -> int:
+def run_search_command(args: Namespace) -> int:
     """사용자가 지정한 모든 검색 조건에 맞는 거래를 출력합니다."""
     transaction_type = cast(TransactionType | None, args.transaction_type)
     found = False
@@ -349,7 +198,7 @@ def run_search_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_update_command(args: argparse.Namespace) -> int:
+def run_update_command(args: Namespace) -> int:
     """ID로 거래를 찾고 사용자가 지정한 필드만 수정합니다."""
     transaction_type = cast(TransactionType | None, args.transaction_type)
     transaction = _build_transaction_service(args).update_transaction(
@@ -367,7 +216,7 @@ def run_update_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_delete_command(args: argparse.Namespace) -> int:
+def run_delete_command(args: Namespace) -> int:
     """ID로 거래 한 건을 찾아 삭제합니다."""
     service = _build_transaction_service(args)
     transaction = service.delete_transaction(args.transaction_id)
@@ -376,7 +225,7 @@ def run_delete_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_summary_command(args: argparse.Namespace) -> int:
+def run_summary_command(args: Namespace) -> int:
     """지정한 월의 거래를 집계하고 월별 요약을 출력합니다."""
     service = SummaryService(
         TransactionRepository(args.data_dir),
@@ -393,7 +242,7 @@ def run_summary_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_budget_command(args: argparse.Namespace) -> int:
+def run_budget_command(args: Namespace) -> int:
     """사용자가 지정한 월의 예산을 저장합니다."""
     service = BudgetService(BudgetRepository(args.data_dir))
     month, amount = service.set_budget(args.month, args.amount)
@@ -402,7 +251,7 @@ def run_budget_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_category_command(args: argparse.Namespace) -> int:
+def run_category_command(args: Namespace) -> int:
     """카테고리 추가, 목록 조회, 삭제 중 선택한 작업을 실행합니다."""
     service = CategoryService(
         CategoryRepository(args.data_dir),
@@ -427,7 +276,7 @@ def run_category_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_import_command(args: argparse.Namespace) -> int:
+def run_import_command(args: Namespace) -> int:
     """CSV 거래를 가져오고 저장하거나 건너뛴 행의 결과를 출력합니다."""
     service = ImportService(_build_transaction_service(args))
     result = service.import_csv(args.source_path)
@@ -439,7 +288,7 @@ def run_import_command(args: argparse.Namespace) -> int:
 
 
 @handle_cli_errors
-def run_export_command(args: argparse.Namespace) -> int:
+def run_export_command(args: Namespace) -> int:
     """기간에 맞는 거래를 CSV로 내보내고 저장한 건수를 출력합니다."""
     exported = ExportService(_build_transaction_service(args)).export_csv(
         args.output_path,
