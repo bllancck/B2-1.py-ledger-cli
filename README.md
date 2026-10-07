@@ -74,7 +74,7 @@ flowchart TB
 
     subgraph second_row[" "]
         direction LR
-        commands[commands.py<br/>입력 및 출력]
+        command_start[" "] --> commands[commands.py<br/>입력 및 출력]
         services[services.py / csv_services.py<br/>업무 로직]
         commands --> services
         services --> repository[repository.py<br/>데이터 저장 및 조회]
@@ -83,10 +83,11 @@ flowchart TB
         commands -. 명령 오류 .-> command_error([종료 코드 1])
     end
 
-    first_row --> second_row
+    first_row ~~~ second_row
 
     style first_row fill:none,stroke:none
     style second_row fill:none,stroke:none
+    style command_start fill:none,stroke:none
 
     classDef exitSuccess fill:#dcfce7,stroke:#15803d,color:#14532d,stroke-width:2px
     classDef exitError fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d,stroke-width:2px
