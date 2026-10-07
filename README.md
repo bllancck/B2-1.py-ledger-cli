@@ -67,7 +67,7 @@ flowchart TB
 
     subgraph second_row[" "]
         direction LR
-        next(( )) -----> commands[commands.py<br/>입력 및 출력]
+        next["────────▶"] ~~~ commands[commands.py<br/>입력 및 출력]
         services[services.py / csv_services.py<br/>업무 로직]
         commands --> services
         services --> repository[repository.py<br/>데이터 저장 및 조회]
