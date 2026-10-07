@@ -56,6 +56,13 @@ B2-1.py-ledger-cli/
 ## 실행 흐름
 
 ```mermaid
+---
+config:
+  layout: dagre
+  look: classic
+  flowchart:
+    curve: basis
+---
 flowchart TB
     subgraph first_row[" "]
         direction LR
