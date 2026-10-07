@@ -15,6 +15,7 @@ from budget_app.commands import (
     run_summary_command,
     run_update_command,
 )
+from budget_app.decorators import handle_cli_errors
 from budget_app.parser import build_parser
 from budget_app.repository import initialize_data_files
 
@@ -35,6 +36,7 @@ COMMAND_HANDLERS: dict[str, CommandHandler] = {
 }
 
 
+@handle_cli_errors
 def main(argv: Sequence[str] | None = None) -> int:
     """명령줄 인자를 해석해 해당 명령을 실행하고 종료 코드를 반환합니다."""
     parser = build_parser()
