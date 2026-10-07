@@ -61,15 +61,19 @@ flowchart TB
         direction LR
         user[사용자 명령] --> parser[parser.py<br/>인자 해석]
         parser --> cli[cli.py<br/>초기화 및 명령 분기]
+        parser -. 파싱 오류 .-> exit2([종료 코드 2])
+        cli -. 초기화 오류 .-> init_error([종료 코드 1])
     end
 
     subgraph second_row[" "]
         direction LR
-        next[" "] --> commands[commands.py<br/>입력 및 출력]
+        next[" "] ----> commands[commands.py<br/>입력 및 출력]
         services[services.py / csv_services.py<br/>업무 로직]
         commands --> services
         services --> repository[repository.py<br/>데이터 저장 및 조회]
         repository --> files[(JSONL 파일)]
+        commands -. 정상 완료 .-> exit0([종료 코드 0])
+        commands -. 명령 오류 .-> command_error([종료 코드 1])
     end
 
     first_row ~~~ second_row
@@ -77,6 +81,13 @@ flowchart TB
     style first_row fill:none,stroke:none
     style second_row fill:none,stroke:none
     style next fill:none,stroke:none
+
+    classDef exitSuccess fill:#dcfce7,stroke:#15803d,color:#14532d,stroke-width:2px
+    classDef exitError fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d,stroke-width:2px
+    classDef exitParse fill:#ffedd5,stroke:#c2410c,color:#7c2d12,stroke-width:2px
+    class exit0 exitSuccess
+    class init_error,command_error exitError
+    class exit2 exitParse
 ```
 
 `parser.py`가 명령을 해석하면 `cli.py`가 `commands.py`의 실행 함수를 호출합니다. 실행 함수는 오류를 공통 처리하고 Service와 Repository를 통해 업무 로직과 JSONL 저장·조회를 수행합니다.
