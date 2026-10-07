@@ -33,8 +33,7 @@
 B2-1.py-ledger-cli/
 ├── README.md
 ├── docs/
-│   ├── ARCHITECTURE.md     # 계층별 책임과 모듈 의존 관계
-│   └── execution-flow.svg # CLI 실행 흐름 다이어그램
+│   └── ARCHITECTURE.md     # 계층별 책임과 모듈 의존 관계
 ├── budget_app/
 │   ├── __main__.py        # 실행 진입점
 │   ├── parser.py          # 명령과 옵션 정의, 인자 파서 생성
@@ -56,10 +55,29 @@ B2-1.py-ledger-cli/
 
 ## 실행 흐름
 
-![CLI 실행 흐름 다이어그램](docs/execution-flow.svg)
+```mermaid
+flowchart TB
+    subgraph first_row[" "]
+        direction LR
+        user[사용자 명령] --> parser[parser.py<br/>인자 해석]
+        parser --> cli[cli.py<br/>초기화 및 명령 분기]
+    end
 
-- 실선(`→`): 주요 실행 및 데이터 처리 흐름
-- 점선(`-.->`): 공통 검증 또는 오류 처리 흐름
+    subgraph second_row[" "]
+        direction LR
+        next[" "] --> commands[commands.py<br/>입력 및 출력]
+        services[services.py / csv_services.py<br/>업무 로직]
+        commands --> services
+        services --> repository[repository.py<br/>데이터 저장 및 조회]
+        repository --> files[(JSONL 파일)]
+    end
+
+    first_row ~~~ second_row
+
+    style first_row fill:none,stroke:none
+    style second_row fill:none,stroke:none
+    style next fill:none,stroke:none
+```
 
 `parser.py`는 `argparse` 파서를 구성해 명령을 해석하고, `cli.py`의 `main()`은 `commands.py`의 명령별 실행 함수를 호출합니다. 각 실행 함수는 `@handle_cli_errors` 데코레이터로 감싸져 있으며 Service를 호출해 업무 로직을 수행합니다. 거래 생성 과정에서는 `Transaction` 모델이 공통 검증 함수를 사용하고, Repository가 JSONL 데이터를 조회하거나 저장합니다. 공통 검증 규칙은 `validation.py`에서 제공됩니다.
 
